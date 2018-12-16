@@ -1,0 +1,20 @@
+# Matlab autosave files
+*.asv
+
+# Editor backup files
+*~
+
+# Nested user-specific files in TDT directory
+DataTanks/*
+UserFiles/*
+
+
+# OS generated files 
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
