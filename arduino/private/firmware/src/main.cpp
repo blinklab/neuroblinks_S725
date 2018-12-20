@@ -59,10 +59,10 @@ int param_laserdelay = 0; // delay from CS onset until laser onset
 int param_laserdur = 0; // duration of laser pulse
 int param_laserperiod = 0; // period of laser pulse
 int param_lasernumpulses = 1; // number of laser pulses in train
+int param_rampoffdur = 0; //ALvaro 10/19/18
 int param_laserpower = 0; // In DAC units (i.e., 0 --> GND, 4095 --> Vs)
 int param_lasergain = 1;
 int param_laseroffset = 0;
-
 
 int param_encoderperiod = 5; // in ms
 int param_encodernumreadings = (param_campretime + param_camposttime) / param_encoderperiod; // number of readings to take during trial
@@ -80,7 +80,7 @@ bool RUNNING = false;
 //    and seems easier to comprehend
 Stimulus camera(0, param_campretime + param_camposttime, digitalOn, digitalOff, pin_camera);
 Stimulus US(param_campretime + param_ISI, param_usdur, digitalOn, digitalOff, stim2pinMapping[param_usch]);
-StimulusRepeating laser(param_campretime + param_laserdelay, param_laserdur, laserOn, laserOff, 0, param_laserperiod, param_lasernumpulses);
+StimulusRepeating laser(param_campretime + param_laserdelay, param_laserdur, laserOn, laserOff, 0, param_laserperiod, param_lasernumpulses); //ALvaro 10/19/18
 StimulusRepeating CS(param_campretime, param_csdur, digitalOn, digitalOff, stim2pinMapping[param_csch], param_csperiod, param_csrepeats);
 
 SensorRepeating enc(0, takeEncoderReading, param_encoderperiod, param_encodernumreadings);
@@ -227,6 +227,9 @@ void checkVars() {
       case 21:
         param_csrepeats = value;
         break;
+      case 22:
+        param_rampoffdur = value; //ALvaro 10/19/18
+        break;
     }
     // We might be able to remove this delay if Matlab sends the parameters fast enough to buffer
     delay(1); // Delay enough to allow next 3 bytes into buffer (24 bits/115200 bps = ~200 us, so delay 1 ms to be safe).
@@ -238,6 +241,7 @@ void configureTrial() {
 
     camera.setDuration(param_campretime + param_camposttime);
 
+    CS.setDelay(param_campretime);
     CS.setDuration(param_csdur);
     CS.setFunctionArg(stim2pinMapping[param_csch]);
     CS.setPeriod(param_csperiod);
@@ -347,19 +351,179 @@ void toneOff(int pin) {
 };
 
 void laserOn(int dummy) { // Function signature requires int but we don't need it so call it "dummy"
-    DACWrite(powerToDACUnits(param_laserpower));
-}
+    double counter;
+if (param_laserpower==4095)
+  {
+    DACWrite(powerToDACUnits(4095));
+  }
+else
+  if (param_laserpower==2047)
+  {
+    DACWrite(powerToDACUnits(2047));
+  }
+else
+  if (param_laserpower==3000)
+  {
+    DACWrite(powerToDACUnits(3000));
+  }
+  else
+    if (param_laserpower==3250)
+    {
+      DACWrite(powerToDACUnits(3250));
+    }
+    else
+      if (param_laserpower==3500)
+      {
+        DACWrite(powerToDACUnits(3500));
+      }
+      else
+        if (param_laserpower==3750)
+        {
+          DACWrite(powerToDACUnits(3750));
+        }
+        else
+          if (param_laserpower==4000)
+          {
+            DACWrite(powerToDACUnits(4000));
+          }
+else
+    if (param_laserpower==1)
+      {
+       DACWrite(powerToDACUnits(2047));
+      }
+else
+      if (param_laserpower==2)
+      for (counter = 2047; counter < 4095; counter = counter+0.16)
+      {
+        DACWrite(powerToDACUnits(counter));
+       }
+else
+      if (param_laserpower==3)
+      {
+         DACWrite(powerToDACUnits(4095));
+       }
+else
+    if (param_laserpower==4)
+        for (counter = 4095; counter > 2048; counter = counter-0.16)
+        {
+          DACWrite(powerToDACUnits(counter));
+        }
+else
+    if (param_laserpower==5)
+        for (counter = 2047; counter > 0; counter = counter-0.16)
+        {
+          DACWrite(powerToDACUnits(counter));
+        }
+else
+    if (param_laserpower==6)
+      {
+        DACWrite(powerToDACUnits(0));
+      }
+  else
+     if (param_laserpower==7)
+        for (counter = 0; counter < 2046; counter = counter+0.16)
+        {
+          DACWrite(powerToDACUnits(counter));
+        }
+  else
+      if (param_laserpower==8)
+        {
+         DACWrite(powerToDACUnits(410));
+        }
+  else
+        if (param_laserpower==9)
+        for (counter = 410; counter < 819; counter = counter+0.031)
+        {
+          DACWrite(powerToDACUnits(counter));
+         }
+  else
+        if (param_laserpower==10)
+        {
+           DACWrite(powerToDACUnits(819));
+         }
+  else
+      if (param_laserpower==11)
+          for (counter = 819; counter > 411; counter = counter-0.031)
+          {
+            DACWrite(powerToDACUnits(counter));
+          }
+  else
+      if (param_laserpower==12)
+          for (counter = 410; counter > 0; counter = counter-0.031)
+          {
+            DACWrite(powerToDACUnits(counter));
+          }
+  else
+      if (param_laserpower==13)
+        {
+          DACWrite(powerToDACUnits(0));
+        }
+  else
+      if (param_laserpower==14)
+          for (counter = 0; counter < 409; counter = counter+0.031)
+          {
+            DACWrite(powerToDACUnits(counter));
+        }
+  else
+            if (param_laserpower==15)
+              {
+               DACWrite(powerToDACUnits(1024));
+              }
+        else
+              if (param_laserpower==16)
+              for (counter = 1024; counter < 2047; counter = counter+0.08)
+              {
+                DACWrite(powerToDACUnits(counter));
+               }
+        else
+              if (param_laserpower==17)
+              {
+                 DACWrite(powerToDACUnits(2047));
+               }
+        else
+            if (param_laserpower==18)
+                for (counter = 2047; counter > 1025; counter = counter-0.08)
+                {
+                  DACWrite(powerToDACUnits(counter));
+                }
+        else
+            if (param_laserpower==19)
+                for (counter = 1024; counter > 0; counter = counter-0.08)
+                {
+                  DACWrite(powerToDACUnits(counter));
+                }
+        else
+            if (param_laserpower==20)
+              {
+                DACWrite(powerToDACUnits(0));
+              }
+          else
+             if (param_laserpower==21)
+                for (counter = 0; counter < 1024; counter = counter+0.08)
+                {
+                  DACWrite(powerToDACUnits(counter));
+                }};
+
 
 void laserOff(int dummy) { // Function signature requires int but we don't need it so call it "dummy"
-    DACWrite(0);
-}
+  double counter;
+double  timeramp = (1/(param_rampoffdur*0.000625));
+double  rampoff = param_rampoffdur;
+if (rampoff==0)
+  DACWrite(0);
+  else
+    if (rampoff>0)
+    for (counter = param_laserpower; counter > 0; counter = counter-timeramp)
+      {
+        DACWrite(powerToDACUnits(counter));
+      }};
 
 // We call by reference so we can update the local variables in "reading_function" of StateMachine object
 void takeEncoderReading(timems_t &time, int32_t &reading) {
 
     time = millis();
-    // reading = cylEnc.read();
-    reading = 5000-random(10000);  // for testing
+     reading = cylEnc.read();
+    // reading = 5000-random(10000);  // for testing
 
 }
 

@@ -36,6 +36,10 @@ void laserOn(int);
 
 void laserOff(int);
 
+void laserrampoff(int);
+
+void rampoffdur(int);
+
 void takeEncoderReading(timems_t &, int32_t &);
 
 void sendEncoderData( void );
