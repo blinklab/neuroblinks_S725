@@ -110,8 +110,8 @@ void setup() {
 
   // set your ssPin to LOW too. when you have more external chips to control, you will have to be more careful about this step (ssPin LOW means the chip will respond to SPI commands)
   digitalWrite(pin_ss, LOW);
-  // SPI.begin();
-  // SPI.setBitOrder(MSBFIRST);  // if you are using the MCP4131
+  SPI.begin();
+  SPI.setBitOrder(MSBFIRST);  // if you are using the MCP4131
 
   Serial.begin(115200);
   Wire.begin();
