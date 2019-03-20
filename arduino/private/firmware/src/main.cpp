@@ -213,7 +213,7 @@ void checkVars() {
         break;
       case 14:
         param_csintensity = value;
-        // setDiPoValue(param_csintensity);
+        setDiPoValue(param_csintensity);
         break;
       case 15:
         param_laserperiod = value;
