@@ -90,6 +90,11 @@ trials.savematadata=0;
 setappdata(0,'metadata',metadata);
 setappdata(0,'trials',trials);
 
+% set up value for saving CS intensity of previous trial - will help
+% preserve the digital potentiometer from getting adjusted every trial and
+% extend its lifetime
+setappdata(0,'prevcsint',0);
+
 % Open parameter dialog
 h=ParamsWindow;
 waitfor(h);
@@ -564,6 +569,7 @@ if metadata.cam.cal, metadata.stim.type='Puff'; end % for Cal
 metadata.stim.c.csdur=0;
 metadata.stim.c.csnum=0;
 metadata.stim.c.isi=0;
+metadata.stim.c.csint=0;
 metadata.stim.c.usdur=0;
 metadata.stim.c.usnum=0;
 metadata.stim.c.cstone=[0 0];
@@ -587,18 +593,19 @@ switch lower(metadata.stim.type)
         trialvars=readTrialTable(metadata.eye.trialnum1);
         metadata.stim.c.csdur=trialvars(1);
         metadata.stim.c.csnum=trialvars(2);
-        metadata.stim.c.isi=trialvars(3);
-        metadata.stim.c.usdur=trialvars(4);
-        metadata.stim.c.usnum=trialvars(5);
+        metadata.stim.c.csint=trialvars(3);
+        metadata.stim.c.isi=trialvars(4);
+        metadata.stim.c.usdur=trialvars(5);
+        metadata.stim.c.usnum=trialvars(6);
         metadata.stim.c.cstone=str2num(get(handles.edit_tone,'String'))*1000;
         if length(metadata.stim.c.cstone)<2, metadata.stim.c.cstone(2)=0; end
         metadata.stim.totaltime=metadata.stim.c.isi+metadata.stim.c.usdur;
-        metadata.stim.l.delay = trialvars(6);
-        metadata.stim.l.dur = trialvars(7);
-        metadata.stim.l.amp = trialvars(8);
-        metadata.stim.c.cs_period = trialvars(9);
-        metadata.stim.c.cs_repeats = trialvars(10);
-        metadata.stim.c.cs_addreps = randi([0,trialvars(11)],1,1);%generates a random integer to be added to cs_repeats, also affects ISI
+        metadata.stim.l.delay = trialvars(7);
+        metadata.stim.l.dur = trialvars(8);
+        metadata.stim.l.amp = trialvars(9);
+        metadata.stim.c.cs_period = trialvars(10);
+        metadata.stim.c.cs_repeats = trialvars(11);
+        metadata.stim.c.cs_addreps = randi([0,trialvars(12)],1,1);%generates a random integer to be added to cs_repeats, also affects ISI
     otherwise
         metadata.stim.totaltime=0;
         warning('Unknown stimulation mode set.');
@@ -643,6 +650,14 @@ elseif  strcmpi(metadata.stim.type, 'conditioning')
     datatoarduino(11)=metadata.stim.l.delay;
     datatoarduino(12)=metadata.stim.l.dur;
     datatoarduino(13)=metadata.stim.l.amp;
+    
+    if metadata.stim.c.csnum==5 % only try to change the CS intensity for tone CS's
+        prevcsint = getappdata(0,'prevcsint');
+        if prevcsint ~= metadata.stim.c.csint % only change the CS intensity if the current trial's CS int differs from the previous trial's
+            datatoarduino(14)=metadata.stim.c.csint;
+            setappdata(0,'prevcsint',metadata.stim.c.csint); % update the stored CS intensity value for the next trial
+        end
+    end
 
     datatoarduino(20)=metadata.stim.c.cs_period;
     datatoarduino(21)=metadata.stim.c.cs_repeats+metadata.stim.c.cs_addreps;
