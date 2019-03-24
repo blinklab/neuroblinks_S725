@@ -43,8 +43,13 @@ tm=cell(length(fnames),1);			% Same for time
 c_isi=NaN(length(fnames),1);
 c_csnum=NaN(length(fnames),1);
 c_csdur=NaN(length(fnames),1);
+c_csint=NaN(length(fnames),1);
 c_usnum=NaN(length(fnames),1);
 c_usdur=NaN(length(fnames),1);
+
+dur=NaN(length(fnames),1);
+amp=NaN(length(fnames),1);
+delay=NaN(length(fnames),1);
 
 trialnum=zeros(length(fnames),1);
 ttype=cell(length(fnames),1);
@@ -73,8 +78,14 @@ parfor i=1:length(fnames)
 	c_isi(i)=metadata.stim.c.isi;
 	c_csnum(i)=metadata.stim.c.csnum;
 	c_csdur(i)=metadata.stim.c.csdur;
+    c_csint(i)=metadata.stim.c.csint;
 	c_usnum(i)=metadata.stim.c.usnum;
-	c_usdur(i)=metadata.stim.c.usdur;
+    c_usdur(i)=metadata.stim.c.usdur;
+    
+    dur(i)=metadata.stim.l.dur;
+    amp(i)=metadata.stim.l.amp;
+    delay(i)=metadata.stim.l.delay;
+
 	
 	trialnum(i)=metadata.cam.trialnum;
 	ttype{i}=metadata.stim.type;
@@ -124,9 +135,14 @@ trials.fnames=fnames;
 
 trials.c_isi=c_isi;
 trials.c_csnum=c_csnum;
+trials.c_csint=c_csint;
 trials.c_csdur=c_csdur;
 trials.c_usnum=c_usnum;
 trials.c_usdur=c_usdur;
+
+trials.laser.dur = dur;
+trials.laser.delay = delay;
+trials.laser.amp= amp;
 
 trials.trialnum=trialnum;
 trials.type=ttype;
