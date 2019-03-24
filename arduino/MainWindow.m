@@ -650,15 +650,21 @@ elseif  strcmpi(metadata.stim.type, 'conditioning')
     datatoarduino(11)=metadata.stim.l.delay;
     datatoarduino(12)=metadata.stim.l.dur;
     datatoarduino(13)=metadata.stim.l.amp;
+    datatoarduino(14)=metadata.stim.c.csint;
     
-    if metadata.stim.c.csnum==5 % only try to change the CS intensity for tone CS's
-        prevcsint = getappdata(0,'prevcsint');
-        if prevcsint ~= metadata.stim.c.csint % only change the CS intensity if the current trial's CS int differs from the previous trial's
-            datatoarduino(14)=metadata.stim.c.csint;
-            setappdata(0,'prevcsint',metadata.stim.c.csint); % update the stored CS intensity value for the next trial
-        end
+    prevcsint = getappdata(0, 'prevcsint');
+    if prevcsint == metadata.stim.c.csint % only tell arduino to change the CS intensity if the current trial's CS int differs from the previous trial's
+        datatoarduino(19)=0;
+        setappdata(0,'prevcsint',metadata.stim.c.csint); % update the stored CS intensity value for the next trial
+    else
+        datatoarduino(19)=1;
     end
 
+
+    % I THINK THE LASER PULSE INFO IN DIPO MAINWINDOW-NEW FOR FIELDS 15-18
+    % SHOULD WORK IF INSERTED HERE AND RELEVANT INFO PULLED FROM TRIAL
+    % TABLE BUT I AM NOT SURE
+    
     datatoarduino(20)=metadata.stim.c.cs_period;
     datatoarduino(21)=metadata.stim.c.cs_repeats+metadata.stim.c.cs_addreps;
 end

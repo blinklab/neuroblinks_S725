@@ -5,6 +5,7 @@
 #include "main.hpp"
 #include <Encoder.h>
 #include <tone.hpp>
+#include "SPI.h"
 
 // Stimulus channels (as defined in Matlab code)
 const int ch_led = 1;
@@ -51,6 +52,7 @@ int param_csch = ch_led;   // default to LED
 int param_usch = ch_puffer_eye;   // default to ipsi corneal puff
 int param_tonefreq = 10000;
 int param_csintensity = 256; // default to max intensity
+int param_changecsint = 1; // default to change the cs intensity
 int param_csrepeats = 1; //number of repetitions of tone for sequence training
 int param_csperiod = 0; //period only necessary for repeating CSs
 
@@ -212,14 +214,16 @@ void checkVars() {
         param_laserpower = value;
         break;
       case 14:
-        param_csintensity = value;
-        setDiPoValue(param_csintensity);
+        param_csintensity = value==0 ? value : value-1;
         break;
       case 15:
         param_laserperiod = value;
         break;
       case 16:
         param_lasernumpulses = value;
+        break;
+      case 19:
+        param_changecsint = value;
         break;
       case 20:
         param_csperiod = value;
@@ -251,6 +255,17 @@ void configureTrial() {
     laser.setDuration(param_laserdur);
     laser.setPeriod(param_laserperiod);
     laser.setNumRepeats(param_lasernumpulses);
+
+    // DO some error checking for required bounds
+    // CS intensity can be at most 255 (=2^8-1) because PWM with analogWrite uses 8 bits
+    // CS intensity for tone can have at most a value of 127 because the digital potentiometer is 7 bits
+    // but we don't have to worry about it because that most significant bit will be truncated so 255 will look like 127
+    if (param_csintensity < 0) { param_csintensity = 0;}
+    if (param_csintensity > 255) { param_csintensity = 255;}
+
+    if (param_csch == ch_tone && param_changecsint == 1) {
+      setDiPoValue(param_csintensity);
+    }
 
 }
 
