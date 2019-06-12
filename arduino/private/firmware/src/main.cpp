@@ -200,6 +200,8 @@ void checkVars() {
         break;
       case 9:
         param_camposttime = value;
+        param_encodernumreadings = (param_campretime + param_camposttime) / param_encoderperiod;
+        enc.setReadings(param_encodernumreadings);
         break;
       case 10:
         param_usch = value;
@@ -373,8 +375,8 @@ void laserOff(int dummy) { // Function signature requires int but we don't need 
 void takeEncoderReading(timems_t &time, int32_t &reading) {
 
     time = millis();
-    // reading = cylEnc.read();
-    reading = 5000-random(10000);  // for testing
+    reading = cylEnc.read();
+    //reading = 5000-random(10000);  // for testing
 
 }
 

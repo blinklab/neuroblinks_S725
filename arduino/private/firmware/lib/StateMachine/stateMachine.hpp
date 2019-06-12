@@ -86,6 +86,7 @@ class SensorRepeating : public StateMachine {
         SensorRepeating(timems_t, void (*)(timems_t &, int32_t &), timems_t, int);
         void on();
         void off();
+        void setReadings(int);
         timems_t getTime(int);
         int32_t getReading(int);
         void reset();

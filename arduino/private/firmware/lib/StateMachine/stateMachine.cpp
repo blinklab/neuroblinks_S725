@@ -181,6 +181,8 @@ timems_t SensorRepeating::getTime(int index) {
     }
 }
 
+void SensorRepeating::setReadings(int readings) { num_repeats = readings; }
+
 int32_t SensorRepeating::getReading(int index) {
     if (index >= 0 && index < num_repeats) {
         return (readings[index]);

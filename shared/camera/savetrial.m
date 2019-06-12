@@ -2,6 +2,9 @@ function savetrial()
 % Load objects from root app data
 vidobj=getappdata(0,'vidobj');
 
+% 4096 counts = 1 revolution = 15.24*pi cm for 6 inch diameter cylinder
+counts2cm = @(count) double(count) ./ 4096 .* 15.24 .* pi; 
+
 pause(1e-3)
 % data=getdata(vidobj,vidobj.TriggerRepeat+1);
 data=getdata(vidobj,vidobj.FramesPerTrigger*(vidobj.TriggerRepeat + 1));
@@ -15,28 +18,40 @@ pause(1e-3)
 setappdata(0,'lastdata',data);
 setappdata(0,'lastmetadata',metadata);
 
-% % Get encoder data from Arduino
-% if isappdata(0,'arduino')
-%   arduino = getappdata(0,'arduino');
-%
-%   if arduino.BytesAvailable > 0
-%     fread(arduino, arduino.BytesAvailable); % Clear input buffer
-%   end
-%
-%   fwrite(arduino,2,'uint8');  % Tell Arduino we're ready for it to send the data
-%
-%   data_header=(fread(arduino,1,'uint8'));
-%   if data_header == 100
-%     encoder.counts=(fread(arduino,200,'int32'));
-%   end
-%
-%   time_header=(fread(arduino,1,'uint8'));
-%   if time_header == 101
-%     encoder.time=(fread(arduino,200,'uint32'));
-%   end
-%
-% end
-encoder = [];
+
+% Get encoder data from Arduino
+if isappdata(0,'arduino')
+  arduino = getappdata(0,'arduino');
+  
+  campretime = metadata.cam.time(1);
+  camposttime = sum(metadata.cam.time(2:3));
+  binsToExpect = (campretime + camposttime) / 5; % assumes 5 ms bins
+
+  if arduino.BytesAvailable > 0
+    fread(arduino, arduino.BytesAvailable); % Clear input buffer
+  end
+
+  fwrite(arduino,2,'uint8');  % Tell Arduino we're ready for it to send the data
+
+  data_header=(fread(arduino,1,'uint8'));
+  disp(data_header)
+  if data_header == 100
+      disp('GOT HERE')
+    encoder.counts=(fread(arduino,binsToExpect,'int32'));
+    %encoder.counts=(fread(arduino,sum(metadata.cam.time)/5,'int32'));
+    encoder.displacement=counts2cm(encoder.counts-encoder.counts(1));
+  end
+
+  time_header=(fread(arduino,1,'uint8'));
+  disp(time_header)
+  if time_header == 101
+      disp('GOT Here 101')
+     encoder.time=(fread(arduino,binsToExpect,'uint32'));
+%          encoder.time=(fread(arduino,sum(metadata.cam.time)/5,'uint32'));
+    encoder.time=encoder.time-encoder.time(1);
+  end
+
+end
 
 % --- saved in HDD ---
 trials=getappdata(0,'trials');
