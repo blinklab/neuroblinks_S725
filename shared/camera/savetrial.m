@@ -34,18 +34,18 @@ if isappdata(0,'arduino')
   fwrite(arduino,2,'uint8');  % Tell Arduino we're ready for it to send the data
 
   data_header=(fread(arduino,1,'uint8'));
-  disp(data_header)
+ % disp(data_header)
   if data_header == 100
-      disp('GOT HERE')
+     % disp('GOT HERE')
     encoder.counts=(fread(arduino,binsToExpect,'int32'));
     %encoder.counts=(fread(arduino,sum(metadata.cam.time)/5,'int32'));
     encoder.displacement=counts2cm(encoder.counts-encoder.counts(1));
   end
 
   time_header=(fread(arduino,1,'uint8'));
-  disp(time_header)
+  %disp(time_header)
   if time_header == 101
-      disp('GOT Here 101')
+      %disp('GOT Here 101')
      encoder.time=(fread(arduino,binsToExpect,'uint32'));
 %          encoder.time=(fread(arduino,sum(metadata.cam.time)/5,'uint32'));
     encoder.time=encoder.time-encoder.time(1);

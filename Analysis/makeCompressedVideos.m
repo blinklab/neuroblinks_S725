@@ -45,14 +45,22 @@ fprintf('Done compressing video files\n');
 function loadAndWrite(fullfname,VERBOSE)
 load(fullfname);
 
-if ~exist('data','var') || ~exist('metadata','var')	
-	return	% Not a normal video file so skip this one
+if ~exist('data','var') || ~exist('metadata','var') || ~exist('encoder','var')
+    return	% Not a normal video file so skip this one
+elseif exist('data','var') && exist('metadata','var') && ~exist('encoder','var')
+    [p,basename,ext]=fileparts(fullfname);
+    writeStimVideo(data,metadata,sprintf('%s/compressed/%s',p,basename));
+    save(sprintf('%s/compressed/%s_meta',p,basename),'metadata');
+elseif exist('data','var') && exist('metadata','var') && exist('encoder','var')
+    [p,basename,ext]=fileparts(fullfname);
+    writeStimVideo(data,metadata,sprintf('%s/compressed/%s',p,basename));
+    save(sprintf('%s/compressed/%s_meta',p,basename),'metadata');
+    save(sprintf('%s/compressed/%s_enc',p,basename),'encoder');
+else
+    disp('ENCOUNTERED UNEXPECTED DATA CASE. PAUSING SO USER CAN CHECK DATA.')
+    pause
 end
 
-[p,basename,ext]=fileparts(fullfname);
-
-writeStimVideo(data,metadata,sprintf('%s/compressed/%s',p,basename));
-save(sprintf('%s/compressed/%s_meta',p,basename),'metadata');
 
 if VERBOSE
 	fprintf('Compressed file %s written to disk.\n',basename)
