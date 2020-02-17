@@ -18,6 +18,7 @@ pause(1e-3)
 setappdata(0,'lastdata',data);
 setappdata(0,'lastmetadata',metadata);
 
+saveEncData = getappdata(0,'saveEncData');
 
 % Get encoder data from Arduino
 if isappdata(0,'arduino')  && saveEncData == 1
