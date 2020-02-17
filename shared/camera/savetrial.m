@@ -20,7 +20,7 @@ setappdata(0,'lastmetadata',metadata);
 
 
 % Get encoder data from Arduino
-if isappdata(0,'arduino')
+if isappdata(0,'arduino')  && saveEncData == 1
   arduino = getappdata(0,'arduino');
   
   campretime = metadata.cam.time(1);
@@ -51,6 +51,8 @@ if isappdata(0,'arduino')
     encoder.time=encoder.time-encoder.time(1);
   end
 
+else
+    encoder = [];
 end
 
 % --- saved in HDD ---

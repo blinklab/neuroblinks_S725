@@ -18,6 +18,14 @@ function neuroblinks(varargin)
                 rig = varargin{i};
             end
         end
+        
+        %          if cell2mat(varargin(1)) == 2
+           disp('Encoder data will be saved. Note whether boxes are powered on.')
+           setappdata(0, 'saveEncData',1)
+%         else
+             %disp('ENCODER DATA WILL NOT BE SAVED')
+             %setappdata(0, 'saveEncData',0)
+%         end
     end
 
     % fprintf('Device: %s, Rig: %d\n', device, rig);
