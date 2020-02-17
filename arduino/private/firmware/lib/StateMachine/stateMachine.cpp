@@ -69,6 +69,12 @@ int StateMachine::update() {
         return current_state;
     }
 
+    // for some reason, this breaks the code
+    //if (repeat_counter == 0 && current_state == OFF) {
+    //  off();
+    //  return current_state;
+    //}
+
     return -1;
 }
 
@@ -103,6 +109,8 @@ void StateMachine::setDelay(timems_t delay) { tm_delay = delay; }
 void StateMachine::setDuration(timems_t duration) { tm_duration = duration; }
 
 void StateMachine::setFunctionArg(int arg) { function_arg = arg; }
+
+void StateMachine::refreshNumRepeats() { num_repeats = 1; }
 
 
 /* Stimulus class */

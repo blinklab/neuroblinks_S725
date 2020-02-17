@@ -139,7 +139,28 @@ void loop() {
 
       enc.update();
 
-      if (camera.checkState()==camera.OFF) { endOfTrial(); }
+      if (camera.checkState()==camera.OFF) {
+        // These should already be stopped if we timed things well but we'll do it again just to be safe
+        CS.stop();
+        US.stop();
+        laser.stop();
+        enc.stop();
+        camera.stop(); // Should already be stopped if this function was called
+        // need to update all the stimuli or the state machines won't actually run the off function
+
+        // for some reason, calling these functions appears to break the arduino code (trial never finishes)
+        // Note that the user must send reasonable stimulus delays and durations.
+        // If the user sends a delay/duration that winds up telling a stimulus
+        // to cease after the camera is turned off, that stimulus will not
+        // actually be turned off when the trial is over.
+        //CS.update();
+        //US.update();
+        //laser.update();
+        //camera.update();
+
+        RUNNING = false;
+
+      }
 
   }
 
@@ -148,7 +169,22 @@ void loop() {
       if (Serial.available() > 0) {
           if (Serial.peek() == 1) { // This is the header for triggering; difference from variable communication is that only one byte is sent telling to trigger
               Serial.read();  // Clear the value from the buffer
-              startTrial();
+              configureTrial();
+
+              RUNNING = true;
+
+              // Once StateMachines have been started the delay clock is ticking so don't put anything else below the call to start()
+              // We want to return to the main loop ASAP after StateMachines have started
+              // Each start() method only contains one function call to get current time and two assignment operations so should return quickly
+              // The duration of the trial is determined by the camera parameters (delay, duration) -- all timing is relative to it
+              camera.start();
+
+              enc.start();
+
+              // duration of zero means it's not supposed to run on this trial so don't bother to start it
+              if (param_csdur > 0) { CS.start(); }
+              if (param_usdur > 0) { US.start(); }
+              if (param_laserdur > 0) { laser.start(); }
           }
           else if (Serial.peek() ==2) {
             Serial.read();  // Clear the value from the buffer
@@ -182,6 +218,7 @@ void checkVars() {
     switch (header) {
       case 3:
         param_campretime = value;
+        param_encodernumreadings = (param_campretime + param_camposttime) / param_encoderperiod;
         break;
       case 4:
         param_csch = value;
@@ -201,7 +238,6 @@ void checkVars() {
       case 9:
         param_camposttime = value;
         param_encodernumreadings = (param_campretime + param_camposttime) / param_encoderperiod;
-        enc.setReadings(param_encodernumreadings);
         break;
       case 10:
         param_usch = value;
@@ -243,6 +279,9 @@ void checkVars() {
 void configureTrial() {
 
     camera.setDuration(param_campretime + param_camposttime);
+    camera.refreshNumRepeats();
+
+    enc.setReadings(param_encodernumreadings);
 
     CS.setDuration(param_csdur);
     CS.setFunctionArg(stim2pinMapping[param_csch]);
@@ -252,6 +291,7 @@ void configureTrial() {
     US.setDelay(param_campretime + param_ISI);
     US.setDuration(param_usdur);
     US.setFunctionArg(stim2pinMapping[param_usch]);
+    US.refreshNumRepeats();
 
     laser.setDelay(param_campretime + param_laserdelay);
     laser.setDuration(param_laserdur);
@@ -271,41 +311,42 @@ void configureTrial() {
 
 }
 
+// Olivia commented out to force loop to finish these commands before proceeding
 // Called by main loop when Arduino receives trigger from Matlab
-void startTrial() {
+//void startTrial() {
 
-    configureTrial();
+//    configureTrial();
 
-    RUNNING = true;
+//    RUNNING = true;
 
     // Once StateMachines have been started the delay clock is ticking so don't put anything else below the call to start()
     // We want to return to the main loop ASAP after StateMachines have started
     // Each start() method only contains one function call to get current time and two assignment operations so should return quickly
     // The duration of the trial is determined by the camera parameters (delay, duration) -- all timing is relative to it
-    camera.start();
+//    camera.start();
 
-    enc.start();
+//    enc.start();
 
     // duration of zero means it's not supposed to run on this trial so don't bother to start it
-    if (param_csdur > 0) { CS.start(); }
-    if (param_usdur > 0) { US.start(); }
-    if (param_laserdur > 0) { laser.start(); }
+//    if (param_csdur > 0) { CS.start(); }
+//    if (param_usdur > 0) { US.start(); }
+//    if (param_laserdur > 0) { laser.start(); }
 
-}
+//}
 
 // Called by main loop when camera stops
-void endOfTrial() {
+//void endOfTrial() {
 
-    RUNNING = false;
 
     // These should already be stopped if we timed things well but we'll do it again just to be safe
-    CS.stop();
-    US.stop();
-    laser.stop();
-    enc.stop();
-    camera.stop(); // Should already be stopped if this function was called
+//  CS.stop();
+//  US.stop();
+//  laser.stop();
+//    enc.stop();
+//    camera.stop(); // Should already be stopped if this function was called
 
-}
+//    RUNNING = false;
+//}
 
 // Make sure this code executes fast (< 1 ms) so it doesn't screw up the timing for everything else
 void DACWrite(int DACvalue) {

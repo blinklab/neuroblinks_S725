@@ -20,9 +20,9 @@ void checkVars( void );
 
 void configureTrial( void );
 
-void startTrial( void );
+//void startTrial( void );
 
-void endOfTrial( void );
+//void endOfTrial( void );
 
 void digitalOn(int);
 

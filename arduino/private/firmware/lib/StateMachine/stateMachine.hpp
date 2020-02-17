@@ -2,8 +2,8 @@
 #define STATEMACHINE_H
 #include <Arduino.h>
 
-// This array size will allow us to do up to 1 second of readings at 1 ms intervals or 5 seconds at 5 ms intervals
-#define MAX_SENSOR_READINGS 1000
+// This array size will allow us to do up to 15 seconds of readings at 5 ms intervals or 3 seconds at 1 ms intervals
+#define MAX_SENSOR_READINGS 3000
 
 // Time types representing milliseconds and microseconds
 using timems_t = uint32_t;
@@ -42,6 +42,7 @@ class StateMachine {
         void setDelay(timems_t);
         void setDuration(timems_t);
         void setFunctionArg(int);
+        void refreshNumRepeats();
         int checkState();
         timems_t checkDelayError();
         timems_t checkDurationError();
@@ -84,8 +85,8 @@ class SensorRepeating : public StateMachine {
     public:
         SensorRepeating();
         SensorRepeating(timems_t, void (*)(timems_t &, int32_t &), timems_t, int);
-        void on();
-        void off();
+        void on() override;
+        void off() override;
         void setReadings(int);
         timems_t getTime(int);
         int32_t getReading(int);
